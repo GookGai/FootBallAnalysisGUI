@@ -116,6 +116,33 @@ def shotmap(data, index, mode):
     plt.savefig(fileName + '.png')
     return fig
 
+    
+def shotmappercent(data,index):
+    cleanData(data)
+#     shX = dataShot['X']
+#     shY = dataShot['Y']
+#     shName = dataShot['Player']
+#     shsty = dataShot['Event']
+
+#     sout = dataShot[dataShot['Event'] == 'ShotOffTarget' ]
+#     sot =  dataShot[dataShot['Event'] == 'ShotOnTarget' ]
+#     sb =  dataShot[dataShot['Event'] == 'ShotBlock']
+#     sgg =  dataShot[dataShot['Event'] == 'ShotGetGoal']
+
+    pitch = VerticalPitch(pitch_length=100, pitch_width=100,axis=True,pitch_color = '#538053',half=True)
+    fig,ax =pitch.draw(nrows=1,  ncols=2,figsize =(20,10))
+    bins=[(6,5),(12,5)]
+    for i ,bin in enumerate(bins):
+        binstatistic = pitch.bin_statistic(dataShot['X'],dataShot['Y'],statistic='count',bins = bin)
+        pitch.heatmap(binstatistic,ax=ax[i],cmap="Oranges",edgecolors="#22312b",alpha=0.4)
+        pitch.scatter(dataShot['X'],dataShot['Y'],c='gray',ax=ax[i],s=25)
+        binstatistic['statistic'] = (pd.DataFrame((binstatistic['statistic']/binstatistic['statistic'].sum()))
+                                         .applymap(lambda x: '{:.0%}'.format(x)).values)
+        pitch.label_heatmap(binstatistic,color='black',fontsize =20,ax=ax[i],ha='center',va='bottom')
+    title = fig.suptitle('Attacking Area'+ str(index),fontsize = 50)
+    fileName = 'Attacking Area'+ str(index)
+    plt.savefig(fileName + '.png')
+    return fig
 
 def genname(data):
     playerList = pd.read_csv(file_index).Player.unique()
