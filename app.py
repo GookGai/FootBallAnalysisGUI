@@ -185,6 +185,21 @@ def shotmappercent(data,k):
             pitch.scatter(sgg['X'], sgg['Y'], c='gray', ax=ax[i], s=25)
             binstatistic['statistic'] = (pd.DataFrame((binstatistic['statistic']/binstatistic['statistic'].sum())).applymap(lambda x: '{:.0%}'.format(x)).values)
             pitch.label_heatmap(binstatistic, color='black',fontsize=20, ax=ax[i], ha='center', va='bottom')
+    if k == 5:
+        for i, bin in enumerate(bins):
+            binstatistic = pitch.bin_statistic(cl['X'], cl['Y'], statistic='count', bins=bin)
+            pitch.heatmap(binstatistic, ax=ax[i], cmap="Oranges", edgecolors="#22312b", alpha=0.4)
+            pitch.scatter(cl['X'], cl['Y'], c='gray', ax=ax[i], s=25)
+            binstatistic['statistic'] = (pd.DataFrame((binstatistic['statistic']/binstatistic['statistic'].sum())).applymap(lambda x: '{:.0%}'.format(x)).values)
+            pitch.label_heatmap(binstatistic, color='black',fontsize=20, ax=ax[i], ha='center', va='bottom')
+    if k == 6:
+        for i, bin in enumerate(bins):
+            binstatistic = pitch.bin_statistic(cr['X'], cr['Y'], statistic='count', bins=bin)
+            pitch.heatmap(binstatistic, ax=ax[i], cmap="Oranges", edgecolors="#22312b", alpha=0.4)
+            pitch.scatter(cr['X'], cr['Y'], c='gray', ax=ax[i], s=25)
+            binstatistic['statistic'] = (pd.DataFrame((binstatistic['statistic']/binstatistic['statistic'].sum())).applymap(lambda x: '{:.0%}'.format(x)).values)
+            pitch.label_heatmap(binstatistic, color='black',fontsize=20, ax=ax[i], ha='center', va='bottom')
+
 
     title = fig.suptitle('Attacking Area', fontsize=50)
     fileName = 'AttackingArea'
@@ -288,7 +303,7 @@ def GraphPosition():
     if values["FILE_LIST"][0] == "เตะมุมซ้าย":
         if values["MODE_LIST"][0] == "เปอร์เซ็นต์":
             try:
-                genGraph02(file_index,3)
+                genGraph02(file_index,5)
             except:
                 sg.popup("please check your data Input2")
         else:
@@ -300,7 +315,7 @@ def GraphPosition():
     if values["FILE_LIST"][0] == "เตะมุมขวา":
         if values["MODE_LIST"][0] == "เปอร์เซ็นต์":
             try:
-                genGraph02(file_index,3)
+                genGraph02(file_index,6)
             except:
                 sg.popup("please check your data Input2")
         else:
