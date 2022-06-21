@@ -1,3 +1,4 @@
+from ast import Pass
 import io
 import os
 import PySimpleGUI as sg
@@ -17,11 +18,15 @@ playerLists = {"ALL PLayer", ""}
 
 
 def cleanData(rawdata):
-    global data, data15, data30, data45, dataShot, dataPass, dataPass15, dataPass30, dataPass45
+    global data, data15, data30, data45, dataShot, dataPass, dataPass15, dataPass30, dataPass45,cl,cr
     data = rawdata.replace("-", float(0))
     dataShot = data[(data['Event'] == 'ShotOnTarget') | (data['Event'] == 'ShotOffTarget')
                     | (data['Event'] == 'ShotGetGoal') | (data['Event'] == 'ShotBlock')]
-    a = dataShot['X']
+    Cornerpass = data[(data['Event'] == 'CornerLeft') | (data['Event'] == 'CornerRight')]
+    if(len(dataShot) > 0 ):
+        a = dataShot['X']
+    else:
+        a = Cornerpass['X']
     a = a.reset_index()
     if(a['X'][0] > 60):
         data['X'] = data['X']*1.2
@@ -50,6 +55,8 @@ def cleanData(rawdata):
                         (data30['Event'] == 'Passfail') | (data30['Event'] == 'Cross') | (data30['Event'] == 'Assist')]
     dataPass45 = data45[(data45['Event'] == 'Pass') | (data45['Event'] == 'go') |
                         (data45['Event'] == 'Passfail') | (data45['Event'] == 'Cross') | (data45['Event'] == 'Assist')]
+    cl = data[data['Event'] == 'CornerLeft']
+    cr = data[data['Event'] == 'CornerRight']
 
     dataShot = dataShot.reset_index()
     dataPass = dataPass.reset_index()
@@ -57,11 +64,11 @@ def cleanData(rawdata):
     dataPass30 = dataPass30.reset_index()
     dataPass45 = dataPass45.reset_index()
     print("clean data finished")
-    return(data, data15, data30, data45, dataShot, dataPass, dataPass15, dataPass30, dataPass45)
+    return(data, data15, data30, data45, dataShot, dataPass, dataPass15, dataPass30, dataPass45,cl,cr)
 
 
-def shotmap(data, index, mode):
-    cleanData(data)
+def shotmap(data1, index, mode):
+    cleanData(data1)
     shX = dataShot['X']
     shY = dataShot['Y']
     shName = dataShot['Player']
@@ -71,44 +78,52 @@ def shotmap(data, index, mode):
     sot = dataShot[dataShot['Event'] == 'ShotOnTarget']
     sb = dataShot[dataShot['Event'] == 'ShotBlock']
     sgg = dataShot[dataShot['Event'] == 'ShotGetGoal']
+    # cl = data[data['Event'] == 'CornerLeft']
+    # cr = data[data['Event'] == 'CornerRight']
 
     pitch = VerticalPitch(pitch_length=100, pitch_width=100,
                           axis=True, pitch_color='#538053', half=True)
-    fig, ax = pitch.draw(nrows=1,  ncols=1, figsize=(20, 10))
+    fig, ax = pitch.draw(nrows=1,  ncols=1, figsize=(25,12))
 
     # plt.scatter(dataShot['Y'],dataShot['X'],c='#BE2653',s = 700,marker = "*")
     if mode == 0:
-        plt.scatter(sout['Y'], sout['X'], c='#fcf5e1', s=400, marker="o")
-        plt.scatter(sot['Y'], sot['X'], c='#1E2453', s=300, marker="o")
-        plt.scatter(sb['Y'], sb['X'], c='#1DD473', s=500, marker="P")
-        plt.scatter(sgg['Y'], sgg['X'], c='#BF211E', s=700, marker="*")
+        plt.scatter(sout['Y'], sout['X'], c='#fcf5e1', s=800, marker="o")
+        plt.scatter(sot['Y'], sot['X'], c='#1E2453', s=800, marker="o")
+        plt.scatter(sb['Y'], sb['X'], c='#1DD473', s=800, marker="P")
+        plt.scatter(sgg['Y'], sgg['X'], c='#BF211E', s=800, marker="*")
         title = fig.suptitle('Total Shots', fontsize=40)
         for i in range(len(dataShot['X'])):
-            plt.text(shY[i]-1, shX[i]-2.5, shName[i])
+            plt.text(shY[i]-1, shX[i]-2.5, shName[i], fontsize=15)
     if mode == 1:
-        plt.scatter(sout['Y'], sout['X'], c='#fcf5e1', s=400, marker="o")
+        plt.scatter(sout['Y'], sout['X'], c='#fcf5e1', s=800, marker="o")
         title = fig.suptitle('Wide', fontsize=40)
         for i in range(len(dataShot['X'])):
             if shsty[i] == 'ShotOffTarget':
-                plt.text(shY[i]-1, shX[i]-2.5, shName[i])
+                plt.text(shY[i]-1, shX[i]-2.5, shName[i], fontsize=15)
     if mode == 2:
-        plt.scatter(sot['Y'], sot['X'], c='#1E2453', s=400, marker="o")
+        plt.scatter(sot['Y'], sot['X'], c='#1E2453', s=800, marker="o")
         title = fig.suptitle('On goal', fontsize=40)
         for i in range(len(dataShot['X'])):
             if shsty[i] == 'ShotOnTarget':
-                plt.text(shY[i]-1, shX[i]-2.5, shName[i])
+                plt.text(shY[i]-1, shX[i]-2.5, shName[i], fontsize=15)
     if mode == 3:
-        plt.scatter(sb['Y'], sb['X'], c='#1E2453', s=400, marker="o")
+        plt.scatter(sb['Y'], sb['X'], c='#1E2453', s=800, marker="o")
         title = fig.suptitle('Blocked', fontsize=40)
         for i in range(len(dataShot['X'])):
             if shsty[i] == 'ShotBlock':
-                plt.text(shY[i]-1, shX[i]-2.5, shName[i])
+                plt.text(shY[i]-1, shX[i]-2.5, shName[i], fontsize=15)
     if mode == 4:
-        plt.scatter(sgg['Y'], sgg['X'], c='#1E2453', s=400, marker="*")
+        plt.scatter(sgg['Y'], sgg['X'], c='#1E2453', s=800, marker="*")
         title = fig.suptitle('Goal', fontsize=40)
         for i in range(len(dataShot['X'])):
             if shsty[i] == 'ShotGetGoal':
-                plt.text(shY[i]-1, shX[i]-2.5, shName[i])
+                plt.text(shY[i]-1, shX[i]-2.5, shName[i], fontsize=15)
+    if mode == 5:
+        plt.scatter(cl['Y'], cl['X'], c='#1E2453', s=800, marker="o")
+        title = fig.suptitle('CornerLeft', fontsize=40)
+    if mode == 6:
+        plt.scatter(cr['Y'], cr['X'], c='#1E2453', s=800, marker="o")
+        title = fig.suptitle('CornerRight', fontsize=40)
 #     ax[1].plt.scatter(sout['Y'],sout['X'],c='#fcf5e1',s = 400,marker = "o")
 
     # title = fig.suptitle('Attacking' + str(index), fontsize=50)
@@ -270,20 +285,44 @@ def GraphPosition():
             except:
                 sg.popup("please check your data Input")
 
+    if values["FILE_LIST"][0] == "เตะมุมซ้าย":
+        if values["MODE_LIST"][0] == "เปอร์เซ็นต์":
+            try:
+                genGraph02(file_index,3)
+            except:
+                sg.popup("please check your data Input2")
+        else:
+            try:
+                genGraph01(file_index, 1, 5)
+            except:
+                sg.popup("please check your data Input")
+    
+    if values["FILE_LIST"][0] == "เตะมุมขวา":
+        if values["MODE_LIST"][0] == "เปอร์เซ็นต์":
+            try:
+                genGraph02(file_index,3)
+            except:
+                sg.popup("please check your data Input2")
+        else:
+            try:
+                genGraph01(file_index, 1, 6)
+            except:
+                sg.popup("please check your data Input")
+
 
 ####################################################################################################################################
 ####################################################################################################################################
 ####################################################################################################################################
-sg.theme('Kayak')
+sg.theme('Dark')
 file_layout = [
     [
         sg.Text("Choose file"),
-        sg.In(size=(10, 2), enable_events=True, key="-FILE-"),
+        sg.In(size=(15, 2), enable_events=True, key="-FILE-"),
         sg.FileBrowse(),
     ],
     [
         sg.Listbox(
-            values=["ภาพรวม", "ได้ประตู", "ยิงเข้ากรอบ", "ยิงออก", "ยิงติดบล็อก"], enable_events=True, size=(30, 12), key="FILE_LIST"
+            values=["ภาพรวม", "ได้ประตู", "ยิงเข้ากรอบ", "ยิงออก", "ยิงติดบล็อก","เตะมุมซ้าย",'เตะมุมขวา'], enable_events=True, size=(30, 12), key="FILE_LIST"
         ),
 
     ],
@@ -333,7 +372,7 @@ layout = [
     ]
 ]
 
-window = sg.Window("Gaiyang", layout, size=(1300, 700), resizable=True)
+window = sg.Window("Gaiyang", layout, size=(1400, 720), resizable=True)
 while True:
     event, values = window.read()
     if event == sg.WIN_CLOSED:
@@ -355,7 +394,7 @@ while True:
         try:
             GraphPosition()
         except:
-            sg.popup("please check your data Input")
+            pass
             # window["-IMAGE-"].update(filename = filenames )
     # if event == "FILE_LIST":
     #     sg.popup('You entered')
