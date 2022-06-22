@@ -417,5 +417,5 @@ while True:
         try:
             GraphPosition()
         except:
-            sg.popup("please check your data Input")
+            sg.popup("please check your data Input3")
 window.close()
